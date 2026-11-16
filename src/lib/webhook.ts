@@ -33,13 +33,18 @@ function eventKey(payload: WebhookPayload): string {
 export async function sendWebhookEvent(
   partial: Omit<WebhookPayload, 'token'>,
 ): Promise<void> {
-  const url = import.meta.env.VITE_GOOGLE_WEBHOOK_URL as string | undefined
-  const token = (import.meta.env.VITE_WEBHOOK_SECRET as string | undefined) ?? ''
+  const url = (import.meta.env.VITE_GOOGLE_WEBHOOK_URL as string | undefined)?.trim()
+  const token = (import.meta.env.VITE_WEBHOOK_SECRET as string | undefined)?.trim() ?? ''
 
   if (!url) {
-    console.warn('[SQL Arena] Webhook omitido: VITE_GOOGLE_WEBHOOK_URL no configurada.')
+    console.warn(
+      '[SQL Arena] Webhook omitido: VITE_GOOGLE_WEBHOOK_URL no estaba presente en el BUILD. ' +
+        'Las Application Settings del portal de Azure NO llegan al JS del navegador. ' +
+        'Configurá el secret en GitHub Actions y redesplegá (npm run build con la variable).',
+    )
     return
   }
+
 
   const payload: WebhookPayload = { ...partial, token }
   const key = eventKey(payload)
