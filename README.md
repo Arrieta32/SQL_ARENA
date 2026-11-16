@@ -33,6 +33,19 @@ npm run preview  # sirve el build
 
 Si faltan, la app funciona igual; el webhook solo escribe `console.warn`.
 
+### Importante: Vite las embebe en el BUILD (no en runtime)
+
+`import.meta.env.VITE_*` se sustituye al ejecutar `npm run build`.  
+**Las Application Settings del portal de Azure Static Web Apps NO inyectan valores en el JavaScript del frontend** (solo sirven a APIs/Functions).
+
+Para que el webhook funcione en producción:
+
+1. En GitHub → **Settings → Secrets and variables → Actions**, creá:
+   - `VITE_GOOGLE_WEBHOOK_URL` = URL completa del Web App de Apps Script
+   - `VITE_WEBHOOK_SECRET` = tu token
+2. El workflow de Azure ya las pasa al build (`env:` en el job).
+3. **Redesplegá**: push a `main` o *Re-run jobs* del último workflow. Sin un build nuevo, el JS sigue sin la URL.
+
 ### Payload del webhook
 
 ```json
@@ -64,9 +77,8 @@ Envío con `fetch(..., { mode: 'no-cors' })`, deduplicación en `localStorage` y
    - **App location:** `/`
    - **Output location:** `dist`
    - **Build:** `npm run build` (o el workflow SWA por defecto con Node)
-4. En Configuration / GitHub Actions secrets definí (disponibles en el **build**, Vite las embebe):
-   - `VITE_GOOGLE_WEBHOOK_URL`
-   - `VITE_WEBHOOK_SECRET`
+4. **No alcanza** con Application settings del portal Azure para el frontend Vite.
+   En GitHub → Secrets and variables → Actions agregá `VITE_GOOGLE_WEBHOOK_URL` y `VITE_WEBHOOK_SECRET`, luego redesplegá (nuevo build).
 5. El archivo [`public/staticwebapp.config.json`](public/staticwebapp.config.json) se copia a `dist/` y cubre:
    - SPA fallback a `index.html`
    - MIME `application/wasm`
