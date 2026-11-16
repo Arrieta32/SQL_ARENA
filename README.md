@@ -40,11 +40,13 @@ Si faltan, la app funciona igual; el webhook solo escribe `console.warn`.
 
 Para que el webhook funcione en producción:
 
-1. En GitHub → **Settings → Secrets and variables → Actions**, creá:
-   - `VITE_GOOGLE_WEBHOOK_URL` = URL completa del Web App de Apps Script
+1. En GitHub → **Settings → Secrets and variables → Actions**, creá **repository secrets** (no Environment secrets de Azure):
+   - `VITE_GOOGLE_WEBHOOK_URL` = URL completa del Web App de Apps Script  
+     (ej. `https://script.google.com/macros/s/..../exec`)
    - `VITE_WEBHOOK_SECRET` = tu token
-2. El workflow de Azure ya las pasa al build (`env:` en el job).
-3. **Redesplegá**: push a `main` o *Re-run jobs* del último workflow. Sin un build nuevo, el JS sigue sin la URL.
+2. El workflow hace `npm run build` **fuera** del contenedor de Azure (con esos secrets) y luego sube `dist/` con `skip_app_build`.
+3. Si faltan los secrets, el workflow **falla a propósito** con un mensaje claro.
+4. Tras crearlos: merge/push a `main` o *Re-run all jobs*. Hard-refresh del sitio (Ctrl+Shift+R).
 
 ### Payload del webhook
 
