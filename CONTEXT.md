@@ -46,7 +46,7 @@ Usá estos mensajes; no inventes features que no existan.
 - **Editor SQL** con resaltado (CodeMirror) y atajo Ctrl/Cmd+Enter.
 - **Diccionario de tablas** (PK/FK/tipos) dentro de la misma pantalla.
 - **Grader automático** con diagnóstico pedagógico (LEFT JOIN, GROUP BY, comillas PascalCase).
-- Acceso libre a todas las misiones (ideal para repaso pre-examen).
+- Progresión secuencial (1→10) y Bonus de esquema del examen al completar el 100%.
 - Identificación simple (Nombre + C.I.) y progreso en el dispositivo.
 - Hosting estático en Azure — rápido y gratis.
 
@@ -67,7 +67,7 @@ Usá estos mensajes; no inventes features que no existan.
 ## 3. Experiencia del usuario (flujo)
 
 1. Modal de ingreso: **Nombre y Apellido** + **C.I.**
-2. Sidebar: lista de **Misiones 1–10** (todas desbloqueadas) + **Diccionario de Tablas**.
+2. Sidebar: **Misiones 1–10** con desbloqueo secuencial (candado hasta aprobar la anterior) + **Bonus: Esquema del Examen** (al 10/10) + Diccionario de Tablas de práctica.
 3. Panel central: consigna, pista opcional, editor SQL, botones:
    - Ejecutar SQL
    - Validar Misión
