@@ -8,7 +8,7 @@ export type WebhookPayload = {
   ci: string
   nivel: string
   mision: string
-  estado: 'INGRESO' | 'COMPLETADO'
+  estado: 'INGRESO' | 'COMPLETADO' | 'DESBLOQUEADO'
 }
 
 function readSentEvents(): Set<string> {

@@ -267,13 +267,28 @@ Diagnósticos:
 ---
 
 ## 6. UI / UX (100% en Español)
-Acceso libre a misiones 1–10. Modal Nombre/C.I. Persistencia localStorage. CodeMirror 6. Diccionario de tablas. Ejecutar / Validar / Reiniciar BD.
+
+### 6.1. Identificación y layout
+Modal Nombre/C.I. Persistencia `localStorage` (nombre, C.I., `misionesCompletadas`). CodeMirror 6. Diccionario de tablas de práctica en el sidebar. Botones Ejecutar SQL / Validar Misión / Reiniciar BD.
+
+### 6.2. Progresión secuencial estricta (Misiones 1–10)
+- Por defecto **solo la Misión 1** está desbloqueada.
+- La misión **N** (N ≥ 2) se desbloquea únicamente cuando el estudiante aprobó la misión **N − 1** (`misionesCompletadas.includes(N - 1)`).
+- Las misiones bloqueadas muestran ícono de candado (`Lock`) y estilo deshabilitado; no se pueden seleccionar.
+- Al aprobar una misión se desbloquea automáticamente la siguiente y el banner de éxito ofrece **“Siguiente Misión →”** (o acceso al Bonus tras la Misión 10).
+
+### 6.3. Módulo Bonus: Esquema del Examen (recompensa al 100%)
+- Ítem al final del sidebar: **“Bonus: Esquema del Examen”**, bloqueado con candado hasta `misionesCompletadas.length === 10` (las 10 misiones aprobadas).
+- Al abrirlo (primera vez) se envía webhook: `nivel: "Bonus"`, `mision: "Esquema del Examen"`, `estado: "DESBLOQUEADO"`.
+- Vista de **solo lectura** (sin editor ni ejecución de datos del examen) con:
+  1. **Guía de Reglas del Examen** — PascalCase con comillas dobles; INNER vs LEFT JOIN; COALESCE en agregaciones; catálogos `Parametro` / `ParametroItem`; GROUP BY / HAVING.
+  2. **Diccionario / Esquema Estructural de Referencia (solo DDL)** — acordeón de tablas, columnas, tipos, PK/FK, etiquetado: *“Material de estudio estructural — Los datos y consignas se entregarán el día del examen”*. Sin filas de datos ni consignas del examen.
 
 ---
 
 ## 7. Telemetría Webhook
 Variables: `VITE_GOOGLE_WEBHOOK_URL`, `VITE_WEBHOOK_SECRET`.
-`fetch` con `mode: 'no-cors'`. Payload: token, nombre, ci, nivel, mision, estado (`INGRESO` | `COMPLETADO`).
+`fetch` con `mode: 'no-cors'`. Payload: token, nombre, ci, nivel, mision, estado (`INGRESO` | `COMPLETADO` | `DESBLOQUEADO`).
 
 ---
 

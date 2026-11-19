@@ -5,6 +5,8 @@ type Props = {
   statusMessage?: string | null
   statusTone?: 'neutral' | 'success' | 'error'
   diagnosis?: string | null
+  nextMissionLabel?: string | null
+  onNextMission?: () => void
 }
 
 function cellText(value: unknown): string {
@@ -26,6 +28,8 @@ export function ResultsTable({
   statusMessage,
   statusTone = 'neutral',
   diagnosis,
+  nextMissionLabel,
+  onNextMission,
 }: Props) {
   const toneClass =
     statusTone === 'success'
@@ -43,9 +47,18 @@ export function ResultsTable({
       </div>
 
       {(statusMessage || diagnosis) && (
-        <div className={`mx-3 mt-3 space-y-1 rounded-lg border px-3 py-2 text-sm ${toneClass} ${statusTone === 'success' ? 'pulse-success' : ''}`}>
+        <div className={`mx-3 mt-3 space-y-2 rounded-lg border px-3 py-2 text-sm ${toneClass} ${statusTone === 'success' ? 'pulse-success' : ''}`}>
           {statusMessage && <p>{statusMessage}</p>}
           {diagnosis && <p className="text-arena-warn">{diagnosis}</p>}
+          {statusTone === 'success' && nextMissionLabel && onNextMission && (
+            <button
+              type="button"
+              onClick={onNextMission}
+              className="mt-1 inline-flex items-center rounded-md bg-arena-accent px-3 py-1.5 text-xs font-semibold text-arena-bg transition hover:bg-arena-accent/90"
+            >
+              {nextMissionLabel}
+            </button>
+          )}
         </div>
       )}
 
