@@ -10,8 +10,50 @@ on:
       - main
 
 jobs:
+  # En PRs solo verificamos el build (con secrets VITE_*).
+  # El upload a Azure en eventos pull_request crea un "staging/preview"
+  # y en el plan Free suele fallar con: "No matching static site build found".
+  build_check:
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    name: Build Check (PR)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verificar secrets del webhook
+        env:
+          VITE_GOOGLE_WEBHOOK_URL: ${{ secrets.VITE_GOOGLE_WEBHOOK_URL }}
+          VITE_WEBHOOK_SECRET: ${{ secrets.VITE_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$VITE_GOOGLE_WEBHOOK_URL" ]; then
+            echo "::error::Falta el secret de GitHub Actions 'VITE_GOOGLE_WEBHOOK_URL'."
+            exit 1
+          fi
+          if [ -z "$VITE_WEBHOOK_SECRET" ]; then
+            echo "::error::Falta el secret de GitHub Actions 'VITE_WEBHOOK_SECRET'."
+            exit 1
+          fi
+          echo "Secrets OK (URL length=${#VITE_GOOGLE_WEBHOOK_URL}, token length=${#VITE_WEBHOOK_SECRET})"
+
+      - name: Build (Vite con env)
+        env:
+          VITE_GOOGLE_WEBHOOK_URL: ${{ secrets.VITE_GOOGLE_WEBHOOK_URL }}
+          VITE_WEBHOOK_SECRET: ${{ secrets.VITE_WEBHOOK_SECRET }}
+        run: npm run build
+
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
@@ -29,8 +71,7 @@ jobs:
         run: npm ci
 
       # Vite sustituye import.meta.env.VITE_* SOLO aquí.
-      # El contenedor de Azure/static-web-apps-deploy NO hereda bien el env del step;
-      # por eso construimos fuera y usamos skip_app_build.
+      # Construimos fuera del contenedor SWA y usamos skip_app_build.
       - name: Verificar secrets del webhook
         env:
           VITE_GOOGLE_WEBHOOK_URL: ${{ secrets.VITE_GOOGLE_WEBHOOK_URL }}
@@ -77,3 +118,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_BUSH_06C2AAB1E }}
           action: 'close'
+        # close puede fallar si nunca hubo preview staging; no bloquear el merge
+        continue-on-error: true

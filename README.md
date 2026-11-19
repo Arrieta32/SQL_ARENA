@@ -81,7 +81,8 @@ Envío con `fetch(..., { mode: 'no-cors' })`, deduplicación en `localStorage` y
    - **Build:** `npm run build` (o el workflow SWA por defecto con Node)
 4. **No alcanza** con Application settings del portal Azure para el frontend Vite.
    En GitHub → Secrets and variables → Actions agregá `VITE_GOOGLE_WEBHOOK_URL` y `VITE_WEBHOOK_SECRET`, luego redesplegá (nuevo build).
-5. El archivo [`public/staticwebapp.config.json`](public/staticwebapp.config.json) se copia a `dist/` y cubre:
+5. El workflow **despliega a Azure solo en push a `main`**. En PRs solo corre `npm run build` (los previews/staging de SWA en plan Free suelen fallar con *No matching static site build found*).
+6. El archivo [`public/staticwebapp.config.json`](public/staticwebapp.config.json) se copia a `dist/` y cubre:
    - SPA fallback a `index.html`
    - MIME `application/wasm`
    - Cabeceras de seguridad + CSP con `wasm-unsafe-eval` y `connect-src` hacia Apps Script
